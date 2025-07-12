@@ -28,8 +28,31 @@ async def chat(request: Request):
     if password != PASSWORD:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    # TODO: Replace with real chatbot logic or API call
-    return {"response": f'You said: "{user_message}" (from backend)'}
+    # Simple rule-based chatbot logic with placeholders
+    msg = user_message.strip().lower()
+    
+    greetings = ["hello", "hi", "hey", "greetings"]
+    farewells = ["bye", "goodbye", "see you", "farewell"]
+    company_keywords = {
+        "hours": "Our business hours are 9am to 5pm, Monday through Friday.",
+        "location": "We are located at 123 Main St, Hometown, USA.",
+        "contact": "You can contact us at (555) 123-4567 or email info@example.com.",
+        "services": "We offer a range of services. Please visit our website for more details.",
+        "about": "We are a company dedicated to customer satisfaction."
+    }
+
+    # Greeting
+    if any(word in msg for word in greetings):
+        return {"response": "Hello! How can I help you today?"}
+    # Farewell
+    if any(word in msg for word in farewells):
+        return {"response": "Goodbye! Have a great day!"}
+    # Company info
+    for keyword, reply in company_keywords.items():
+        if keyword in msg:
+            return {"response": reply}
+    # Fallback
+    return {"response": "I'm here to answer questions about our company. How can I help?"}
 
 @app.get("/")
 def root():
