@@ -84,7 +84,7 @@ function App() {
                   setAuthed(true);
                   setUserPassword(pwInput); // Store entered password for future requests
                   setPwError('');
-                  setMessages([{ sender: 'bot', text: 'Welcome! You are now authenticated.' }]);
+                  setMessages([{ sender: 'bot', text: 'Welcome to firefly! You are now authenticated.' }]);
                 }
               })
               .catch(() => setPwError('Error contacting backend.'));
