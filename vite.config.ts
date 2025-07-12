@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Set base path for GitHub Pages deployment
+// Set base path for custom domain deployment
 export default defineConfig({
-  base: '/firefly/',
+  base: '/',
   plugins: [react()],
 });

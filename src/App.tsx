@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import type { FormEvent } from 'react';
 import './App.css';
 
-const PASSWORD = 'Justatest!'; // Change this password before deploying
+// Remove hardcoded password; password is now checked on the backend
 interface Message {
   sender: 'user' | 'bot';
   text: string;
@@ -14,6 +14,7 @@ function App() {
   const [authed, setAuthed] = useState(false);
   const [pwInput, setPwInput] = useState('');
   const [pwError, setPwError] = useState('');
+  const [userPassword, setUserPassword] = useState(''); // Store entered password after login
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleSend = async (e: FormEvent) => {
@@ -23,13 +24,19 @@ function App() {
     setMessages((msgs) => [...msgs, userMsg]);
     setInput('');
 
-    // Call backend API (Render deployment)
     try {
       const res = await fetch('https://firefly-a2gz.onrender.com/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg.text }),
+        body: JSON.stringify({ message: userMsg.text, password: userPassword }),
       });
+      if (res.status === 401) {
+        setMessages((msgs) => [
+          ...msgs,
+          { sender: 'bot', text: 'Incorrect password.' },
+        ]);
+        return;
+      }
       const data = await res.json();
       const botMsg: Message = {
         sender: 'bot',
@@ -62,12 +69,25 @@ function App() {
         <form
           onSubmit={e => {
             e.preventDefault();
-            if (pwInput === PASSWORD) {
-              setAuthed(true);
-              setPwError('');
-            } else {
-              setPwError('Incorrect password.');
-            }
+            // Always try to auth with backend, not a hardcoded password
+            setPwError('');
+            // Try a dummy request to backend with entered password
+            fetch('https://firefly-a2gz.onrender.com/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ message: 'ping', password: pwInput }),
+            })
+              .then(res => {
+                if (res.status === 401) {
+                  setPwError('Incorrect password.');
+                } else {
+                  setAuthed(true);
+                  setUserPassword(pwInput); // Store entered password for future requests
+                  setPwError('');
+                  setMessages([{ sender: 'bot', text: 'Welcome! You are now authenticated.' }]);
+                }
+              })
+              .catch(() => setPwError('Error contacting backend.'));
           }}
           style={{ marginTop: '2rem' }}
         >
