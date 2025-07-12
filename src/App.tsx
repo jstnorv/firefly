@@ -23,9 +23,9 @@ function App() {
     setMessages((msgs) => [...msgs, userMsg]);
     setInput('');
 
-    // Call backend API (local FastAPI server for development)
+    // Call backend API (Render deployment)
     try {
-      const res = await fetch('http://localhost:8000/chat', {
+      const res = await fetch('https://firefly-a2gz.onrender.com/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMsg.text }),
