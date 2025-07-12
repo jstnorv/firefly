@@ -16,21 +16,32 @@ function App() {
   const [pwError, setPwError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = (e: FormEvent) => {
+  const handleSend = async (e: FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
     const userMsg: Message = { sender: 'user', text: input };
     setMessages((msgs) => [...msgs, userMsg]);
     setInput('');
 
-    // Placeholder bot logic. Replace this with an API call to your backend later.
-    setTimeout(() => {
+    // Call backend API (local FastAPI server for development)
+    try {
+      const res = await fetch('http://localhost:8000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg.text }),
+      });
+      const data = await res.json();
       const botMsg: Message = {
         sender: 'bot',
-        text: `You said: "${userMsg.text}" (replace this with real backend response)`
+        text: data.response || 'No response from backend.',
       };
       setMessages((msgs) => [...msgs, botMsg]);
-    }, 500);
+    } catch (err) {
+      setMessages((msgs) => [
+        ...msgs,
+        { sender: 'bot', text: 'Error contacting backend.' },
+      ]);
+    }
   };
 
   // Scroll to bottom on new message
