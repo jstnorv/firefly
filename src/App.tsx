@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import type { FormEvent } from 'react';
 import './App.css';
 
-const PASSWORD = 'Norv@firefly!'; // Change this password before deploying
+const PASSWORD = 'Justatest!'; // Change this password before deploying
 interface Message {
   sender: 'user' | 'bot';
   text: string;
