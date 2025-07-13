@@ -8,6 +8,7 @@ interface Message {
   text: string;
 }
 
+
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -15,6 +16,7 @@ function App() {
   const [pwInput, setPwInput] = useState('');
   const [pwError, setPwError] = useState('');
   const [userPassword, setUserPassword] = useState(''); // Store entered password after login
+  const [wakingUp, setWakingUp] = useState(false); // Show waking up message if backend is slow
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleSend = async (e: FormEvent) => {
@@ -24,12 +26,29 @@ function App() {
     setMessages((msgs) => [...msgs, userMsg]);
     setInput('');
 
+    let wakeupTimeout: number | null = null;
+    setWakingUp(false);
     try {
+      // Show waking up message if backend takes >2s
+      wakeupTimeout = setTimeout(() => {
+        setWakingUp(true);
+        setMessages((msgs) => [
+          ...msgs,
+          { sender: 'bot', text: 'Please wait, the service is starting up...' },
+        ]);
+      }, 2000);
+
       const res = await fetch('https://firefly-a2gz.onrender.com/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMsg.text, password: userPassword }),
       });
+      if (wakeupTimeout) clearTimeout(wakeupTimeout);
+      if (wakingUp) {
+        // Remove the waking up message before showing the real response
+        setMessages((msgs) => msgs.filter(m => m.text !== 'Please wait, the service is starting up...'));
+        setWakingUp(false);
+      }
       if (res.status === 401) {
         setMessages((msgs) => [
           ...msgs,
@@ -44,6 +63,8 @@ function App() {
       };
       setMessages((msgs) => [...msgs, botMsg]);
     } catch (err) {
+      if (wakeupTimeout) clearTimeout(wakeupTimeout);
+      setWakingUp(false);
       setMessages((msgs) => [
         ...msgs,
         { sender: 'bot', text: 'Error contacting backend.' },
