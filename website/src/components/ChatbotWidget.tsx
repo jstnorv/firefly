@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const CHATBOT_API_URL = 'https://www.fireflywealthllc.com/chat'; // Production FastAPI endpoint
+const CHATBOT_API_URL = 'https://firefly-a2gz.onrender.com/chat'; // Render FastAPI endpoint
 
 const ChatbotWidget: React.FC = () => {
 

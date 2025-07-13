@@ -23,10 +23,6 @@ PASSWORD = os.environ.get("CHATBOT_PASSWORD", "changeme")
 async def chat(request: Request):
     data = await request.json()
     user_message = data.get("message", "")
-    password = data.get("password", "")
-
-    if password != PASSWORD:
-        raise HTTPException(status_code=401, detail="Unauthorized")
 
     # Simple rule-based chatbot logic with placeholders
     msg = user_message.strip().lower()
